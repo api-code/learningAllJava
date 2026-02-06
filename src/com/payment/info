@@ -1,0 +1,214 @@
+1. Purpose of This Project
+
+This project demonstrates all four pillars of OOP (Encapsulation, Abstraction, Inheritance, Polymorphism) in a single, realistic payment flow, inspired by how card payment switches / gateways work in real life.
+
+It simulates:
+
+Card network identification (Visa / MasterCard / RuPay)
+
+Routing to the correct network processor
+
+Common transaction flow with network-specific behavior
+
+2. High-Level Business Flow (Real World Mapping)
+Customer Card Payment
+        ↓
+PaymentService (Acquirer / Gateway)
+        ↓
+NetworkResolver (BIN-based routing)
+        ↓
+ProcessorFactory
+        ↓
+BaseProcessor.process()
+        ↓
+Visa / MasterCard / RuPay Processor
+        ↓
+Network Response
+
+3. Package Structure & Responsibility
+com.payment
+ ├── model       → Request / Response objects
+ ├── processor   → BaseProcessor + network processors
+ ├── factory     → Runtime processor selection
+ ├── service     → Entry point for authorization
+ ├── util        → Utility logic (network resolution)
+ └── Main        → Application runner
+
+4. Encapsulation – PaymentRequest
+Why Encapsulation Is Needed in Payments
+
+Card data is sensitive (PCI-DSS)
+
+No class should freely modify or read PAN, expiry, amount
+
+Validation must be enforced at object creation
+
+How It’s Implemented
+private final String pan;
+private final String expiry;
+private final BigDecimal amount;
+
+
+Fields are private
+
+No public setter methods
+
+PAN is never exposed directly
+
+public String getMaskedPan()
+
+
+Only masked PAN is exposed for logging.
+
+Encapsulation Benefits
+
+Prevents invalid transaction objects
+
+Protects sensitive data
+
+Centralizes validation logic
+
+Improves security & correctness
+
+5. Abstraction – BaseProcessor
+What Is Abstracted?
+
+The transaction lifecycle, not the network logic.
+
+validate → build ISO → send → create response
+
+
+This flow is:
+
+Same for all networks
+
+Must not change per network
+
+How It’s Implemented
+public final PaymentResponse process(PaymentRequest request)
+
+process() is concrete and final
+Calls abstract methods internally
+
+Abstract methods:
+validate()
+buildISOMessage()
+sendToNetwork()
+createResponse()
+
+Why This Is Realistic
+
+In real payment systems:
+
+Flow is mandated by network/regulators
+
+Only message format & validation differ
+
+6. Inheritance – Network Processors
+Relationship
+VisaProcessor extends BaseProcessor
+MasterCardProcessor extends BaseProcessor
+RuPayProcessor extends BaseProcessor
+This is an IS-A relationship:
+
+VisaProcessor is a BaseProcessor
+
+MasterCardProcessor is a BaseProcessor
+
+What Is Inherited?
+
+The process() flow
+
+Common transaction structure
+
+What Is Overridden?
+
+Network-specific validation
+
+ISO message format
+
+Network communication
+
+Response creation
+
+This avoids code duplication and enforces consistency.
+
+7. Runtime Polymorphism – Dynamic Network Switching
+Where It Happens
+BaseProcessor processor =
+    ProcessorFactory.getProcessor(network);
+
+processor.process(request);
+Why This Is Polymorphism
+
+Reference type → BaseProcessor
+
+Actual object → Visa / MasterCard / RuPay
+
+Same method call → different behavior
+
+Java decides at runtime which implementation to execute.
+
+Real-World Meaning
+
+The acquirer does not care how Visa or MasterCard works.
+It only calls process().
+
+8. Compile-Time Polymorphism – Method Overloading
+Where It’s Used
+
+PaymentService.authorize() is overloaded.
+
+authorize(PaymentRequest request)
+authorize(String pan, String expiry, BigDecimal amount, String currency)
+
+Why This Is Needed
+
+Different clients may call authorization with:
+Full request object (internal systems)
+Raw card details (API clients)
+
+Java decides at compile time which method to call based on parameters.
+Key Difference
+
+Compile-time polymorphism → method signature
+
+Runtime polymorphism → object type
+9. Network Resolution – NetworkResolver
+Responsibility
+
+Determine card network using PAN/BIN.
+
+resolve(String pan)
+
+Why It Takes Only PAN
+
+Loose coupling
+
+Single responsibility
+
+Matches real BIN-based routing
+
+Easier testing and reuse
+
+This reflects real-world BIN tables or caches used in switches.
+10. Factory Pattern – ProcessorFactory
+Why Factory Is Needed
+
+To avoid if-else logic scattered everywhere
+
+Centralize processor creation
+
+Support easy onboarding of new networks
+
+getProcessor("VISA")
+
+
+Returns the correct processor implementation.
+
+payment system where
+-encapsulation protects card data,
+-abstraction defines the transaction lifecycle,
+-inheritance enables network-specific processors,
+-runtime polymorphism dynamically routes transactions to Visa, MasterCard, or RuPay, and
+-compile-time polymorphism is achieved via overloaded authorization APIs.
