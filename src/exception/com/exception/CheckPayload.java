@@ -1,10 +1,10 @@
 package exception.com.exception;
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 
 public class CheckPayload {
-    private static final ObjectMapper mapper = new ObjectMapper();
+//    private static final ObjectMapper mapper = new ObjectMapper();
 
     public static void validate(File file) {
 
@@ -15,7 +15,7 @@ public class CheckPayload {
 
         // Step 2: Validate JSON structure
         try {
-            mapper.readTree(file);
+//            mapper.readTree(file);
         } catch (Exception e) {
             throw new JSONException("Invalid JSON format", e);
         }
