@@ -1,11 +1,7 @@
 package java8.streaam.apis;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class StreamsQuestions {
@@ -43,5 +39,11 @@ public class StreamsQuestions {
                 .collect(Collectors.groupingBy(Function.identity(),Collectors.counting()));
 
         System.out.println(map);
+    }
+
+    public static void wordVowel2(String s){
+        Arrays.stream(s.split(" ")).
+                filter(x->x.replaceAll("[^aeiouAEIOU]","").length()==2)
+                .forEach(System.out::println);
     }
 }

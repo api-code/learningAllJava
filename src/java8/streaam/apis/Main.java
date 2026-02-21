@@ -14,13 +14,16 @@ public class Main {
 
         String secondHighLen = "I am learning streams api in java";
         String secondHighestLength = StreamsQuestions.secondHighestLen(secondHighLen);
-        System.out.println(secondHighestLength);
+//        System.out.println(secondHighestLength);
 
         String secondHighLenCount = "I am learning streams api in java";
         int secondHighestLengthCount = StreamsQuestions.secondHighestLenCount(secondHighLenCount);
 //        System.out.println(secondHighestLengthCount);
 
         String wordOccurence = "I am api learning streams java api in java";
-        StreamsQuestions.wordOccurrence(wordOccurence);
+//        StreamsQuestions.wordOccurrence(wordOccurence);
+
+        String wordVowel = "I am learning streams api in java";
+        StreamsQuestions.wordVowel2(wordVowel);
     }
 }
